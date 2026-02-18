@@ -23,8 +23,10 @@ def register(user: UserCreate):
         "name": user.name,
         "email": user.email,
         "password": hash_password(user.password),
-        "skills": user.skills
+        "skills": user.skills,
+        "role": "student"
     })
+
 
     return {"message": "User registered successfully"}
 
@@ -42,7 +44,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if not verify_password(form_data.password, user["password"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    access_token = create_access_token({"sub": user["email"]})
+    access_token = create_access_token({
+        "email": user["email"],
+        "role": user.get("role", "student")
+    })
 
     return {
         "access_token": access_token,
@@ -56,6 +61,7 @@ from fastapi import Depends
 @router.get("/profile")
 def profile(user=Depends(get_current_user)):
     return {
-        "message": "Protected route accessed",
-        "user": user
+        "email": user["email"],
+        "role": user["role"]
     }
+

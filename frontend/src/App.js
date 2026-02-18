@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import Dashboard from "./Dashboard";
+
+function isLoggedIn() {
+  return localStorage.getItem("token") !== null;
+}
 
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -22,20 +29,43 @@ function App() {
       );
 
       localStorage.setItem("token", response.data.access_token);
-      alert("Login Successful!");
 
-    } catch (error) {
+      navigate("/dashboard");
+
+    } catch {
       alert("Login Failed");
     }
   };
 
   return (
-    <div>
-      <input placeholder="Email" onChange={e=>setEmail(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={e=>setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Login</button>
-    </div>
-  );
+  <Routes>
+    <Route
+      path="/"
+      element={
+        <div>
+          <input
+            placeholder="Email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            placeholder="Password"
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button onClick={handleLogin}>Login</button>
+        </div>
+      }
+    />
+
+    <Route
+      path="/dashboard"
+      element={isLoggedIn() ? <Dashboard /> : <Navigate to="/" />}
+    />
+  </Routes>
+);
+
 }
 
 export default App;
