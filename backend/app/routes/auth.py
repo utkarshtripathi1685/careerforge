@@ -65,3 +65,16 @@ def profile(user=Depends(get_current_user)):
         "role": user["role"]
     }
 
+from fastapi import Body
+
+@router.put("/skills")
+def update_skills(data: dict = Body(...), user=Depends(get_current_user)):
+
+    skills = data.get("skills", [])
+
+    db.users.update_one(
+        {"email": user["email"]},
+        {"$set": {"skills": skills}}
+    )
+
+    return {"message": "Skills updated"}
